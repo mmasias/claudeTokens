@@ -1,8 +1,6 @@
 # Claude Tokens
 
-Extensión de Chrome para monitorear el uso semanal de tokens en **Claude Code**.
-
-Muestra cuántos tokens has consumido en los últimos 7 días, el desglose diario y cuánto tiempo falta para que los tokens más antiguos salgan de la ventana de conteo.
+Extensión de Chrome para monitorear el uso semanal de tokens en tus herramientas de IA: **Claude Code**, **Gemini CLI** y **OpenCode / z.ai**.
 
 <div align=center>
 
@@ -15,27 +13,34 @@ Muestra cuántos tokens has consumido en los últimos 7 días, el desglose diari
 ## Qué muestra
 
 - **Tokens totales** de la semana actual (ventana rodante de 7 días)
+- **Desglose por herramienta**: Claude Code / Gemini / z.ai por separado
 - **Barra de progreso** contra el límite que configures
-- **Gráfico de barras** con el consumo de cada uno de los últimos 7 días
-- **Costo estimado** en USD (calculado con las tarifas de cada modelo)
+- **Gráfico de barras** con el consumo combinado de los últimos 7 días
+- **Costo estimado** en USD (solo Claude, calculado con tarifas por modelo)
 - **Contador regresivo** hasta que los tokens del día más antiguo se liberen
 - **Badge** en el icono con el porcentaje actual (si tienes límite configurado)
 
 ## Cómo funciona
 
-Lee directamente los archivos de sesión de Claude Code en `~/.claude/projects/`. Cada sesión guarda los conteos de tokens (input, output, cache) por mensaje. La extensión agrega esos datos por día para los últimos 7 días.
-
-No necesita API key ni cuenta de Anthropic. Los datos son locales y no salen de tu máquina.
+Lee directamente los archivos locales de cada herramienta. Sin API keys, sin red, sin cuentas.
 
 ```
-Extension Chrome  <-- Native Messaging -->  Python script  -->  ~/.claude/projects/
+Extension Chrome  <-- Native Messaging -->  Python script  -->  ~/.claude/              (Claude Code)
+                                                            -->  ~/.gemini/              (Gemini CLI)
+                                                            -->  ~/.local/share/opencode/ (OpenCode)
 ```
+
+| Herramienta | Fuente de datos |
+|-------------|----------------|
+| Claude Code | `~/.claude/projects/**/*.jsonl` |
+| Gemini CLI  | `~/.gemini/tmp/**/chats/*.jsonl` |
+| OpenCode / z.ai | `~/.local/share/opencode/opencode.db` |
 
 ## Requisitos
 
 - Chrome u otro navegador basado en Chromium
-- Python 3 (ya viene en macOS y Linux)
-- Claude Code instalado y con al menos una sesión registrada
+- Python 3 (preinstalado en macOS y Linux)
+- Al menos una de las herramientas soportadas con sesiones registradas
 
 ## Instalación
 
@@ -52,7 +57,7 @@ git clone https://github.com/mmasias/claudeTokens.git
 
 ### 2. Instalar el host nativo
 
-El host nativo es un script Python que actúa de puente entre Chrome y los archivos locales de Claude Code. Se instala una vez por máquina.
+El host nativo es un script Python que actúa de puente entre Chrome y los archivos locales. Se instala una vez por máquina.
 
 ```bash
 cd claudeTokens/native_host
@@ -64,15 +69,16 @@ El script copia `claude_token_bridge.py` a `~/.local/share/claude-tokens/` y reg
 
 ### 3. Verificar la conexión
 
-Recarga la extensión en `chrome://extensions`, abre la configuración (⚙) y pulsa **Verificar conexión**. Debería indicar cuántos tokens tiene en los últimos 7 días.
+Recarga la extensión en `chrome://extensions`, abre la configuración (⚙) y pulsa **Verificar conexión**. Debería mostrar cuántos tokens tiene en los últimos 7 días.
 
 ## Configuración
 
 | Parámetro | Descripción |
 |-----------|-------------|
-| Límite semanal | Opcional. Número de tokens como techo de referencia. Sin él se muestran valores absolutos sin porcentaje. |
+| Límite semanal | Opcional. Tokens como techo de referencia para el porcentaje. Sin él se muestran valores absolutos. |
+| Frecuencia de actualización | Cada 15, 30 o 60 minutos (por defecto 60). |
 
-El límite no lo expone ningún API de Anthropic — cada usuario lo calibra según su plan y sus patrones de uso.
+El límite no lo expone ningún API — cada usuario lo calibra según su plan y sus patrones de uso habituales.
 
 ## Uso en otros equipos
 
@@ -82,17 +88,17 @@ cd claudeTokens/native_host
 ./install.sh TU_EXTENSION_ID_EN_ESTE_EQUIPO
 ```
 
-Cada máquina tiene su propio ID de extensión y sus propios datos locales en `~/.claude/`. Los datos no se sincronizan entre equipos — cada instalación mide el uso de esa máquina.
+Cada máquina tiene su propio ID de extensión y sus propios datos locales. Los datos no se sincronizan entre equipos — cada instalación mide el uso de esa máquina.
 
 ## Lógica del reset
 
-La ventana de uso no tiene un reset fijo. Es siempre los últimos 7 días. El contador muestra cuánto tiempo falta para que el día más antiguo con consumo salga de esa ventana — ese es el momento en que se liberan esos tokens del cómputo.
+La ventana de uso no tiene un reset fijo: son siempre los últimos 7 días. El contador muestra cuánto falta para que el día más antiguo con consumo salga de esa ventana. Cuando tiene el timestamp exacto del primer mensaje de ese día, el cálculo es preciso; si no, aproxima con medianoche UTC (±24h).
 
 ## Privacidad
 
 - No hay API keys ni credenciales de ningún tipo
 - La extensión no hace peticiones a internet
-- Los datos de sesión de Claude Code nunca salen de tu máquina
+- Los datos de sesión nunca salen de tu máquina
 
 ## Licencia
 
