@@ -1,5 +1,5 @@
 const HOST_NAME = 'com.claudetokens.bridge';
-const FETCH_INTERVAL_MINUTES = 60;
+const DEFAULT_INTERVAL_MINUTES = 60;
 
 function fetchFromNativeHost() {
   return new Promise((resolve, reject) => {
@@ -57,16 +57,29 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === 'fetchUsage') fetchWeeklyUsage();
 });
 
+async function resetAlarm() {
+  const { fetchIntervalMinutes } = await chrome.storage.local.get('fetchIntervalMinutes');
+  const interval = fetchIntervalMinutes ?? DEFAULT_INTERVAL_MINUTES;
+  await chrome.alarms.clear('fetchUsage');
+  chrome.alarms.create('fetchUsage', { periodInMinutes: interval });
+}
+
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.alarms.create('fetchUsage', { periodInMinutes: FETCH_INTERVAL_MINUTES });
+  resetAlarm();
   fetchWeeklyUsage();
 });
 
 chrome.runtime.onStartup.addListener(() => {
+  resetAlarm();
   fetchWeeklyUsage();
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'SET_INTERVAL') {
+    chrome.storage.local.set({ fetchIntervalMinutes: message.minutes }).then(resetAlarm);
+    sendResponse({ ok: true });
+    return;
+  }
   if (message.type === 'REFRESH') {
     fetchWeeklyUsage()
       .then((data) => sendResponse({ ok: true, data }))

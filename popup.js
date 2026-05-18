@@ -100,16 +100,24 @@ function renderData(weeklyData, weeklyLimit) {
     labels.appendChild(lbl);
   });
 
-  // Reset countdown — tokens del día más antiguo con uso se liberarán a las
-  // [fecha_más_antigua + 7 días] a las 00:00 UTC
+  // Reset countdown: usa earliest_ts del día más antiguo si está disponible,
+  // de lo contrario aproxima con medianoche UTC (puede errar hasta ±24h).
   const oldestDateWithUsage = dates.find((d) => (weeklyData[d]?.tokens?.total ?? 0) > 0);
   if (oldestDateWithUsage) {
-    const releaseDate = new Date(oldestDateWithUsage + 'T00:00:00Z');
-    releaseDate.setUTCDate(releaseDate.getUTCDate() + 7);
-    const msUntilRelease = releaseDate.getTime() - Date.now();
+    const oldestDay = weeklyData[oldestDateWithUsage];
+    let releaseTs;
+    if (oldestDay?.earliest_ts) {
+      releaseTs = new Date(new Date(oldestDay.earliest_ts).getTime() + 7 * 24 * 3600 * 1000);
+    } else {
+      // Fallback: medianoche UTC del día más antiguo + 7 días (±24h de precisión)
+      releaseTs = new Date(oldestDateWithUsage + 'T00:00:00Z');
+      releaseTs.setUTCDate(releaseTs.getUTCDate() + 7);
+    }
+    const msUntilRelease = releaseTs.getTime() - Date.now();
     document.getElementById('reset-countdown').textContent = formatCountdown(msUntilRelease);
+    const approxNote = oldestDay?.earliest_ts ? '' : ' (aprox.)';
     document.getElementById('reset-detail').textContent =
-      `Día más antiguo: ${oldestDateWithUsage} · libera ${formatTokens(weeklyData[oldestDateWithUsage]?.tokens?.total ?? 0)} tokens`;
+      `Día más antiguo: ${oldestDateWithUsage}${approxNote} · libera ${formatTokens(oldestDay?.tokens?.total ?? 0)} tokens`;
   } else {
     document.getElementById('reset-countdown').textContent = '—';
     document.getElementById('reset-detail').textContent = 'Sin datos en los últimos 7 días';

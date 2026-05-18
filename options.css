@@ -96,6 +96,22 @@ input[type="number"] { font-family: inherit; }
 
 input:focus { border-color: #CC785C; box-shadow: 0 0 0 2px #CC785C22; }
 
+select {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #111827;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+select:focus { border-color: #CC785C; box-shadow: 0 0 0 2px #CC785C22; }
+
 .field-hint {
   display: block;
   font-size: 11px;

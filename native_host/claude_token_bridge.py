@@ -8,17 +8,28 @@ import json
 import struct
 import os
 import glob
+import re
 from datetime import datetime, timezone, timedelta
 
-# Precios por 1M tokens en centavos de USD
+# Precios por 1M tokens en centavos de USD.
+# Las claves son el prefijo del modelo (sin sufijo de fecha).
 MODEL_RATES = {
-    'claude-sonnet-4-6':        {'input': 300,  'output': 1500, 'cache_creation': 375, 'cache_read': 30},
-    'claude-sonnet-4-5':        {'input': 300,  'output': 1500, 'cache_creation': 375, 'cache_read': 30},
-    'claude-opus-4-7':          {'input': 500,  'output': 2500, 'cache_creation': 625, 'cache_read': 50},
-    'claude-opus-4-5':          {'input': 500,  'output': 2500, 'cache_creation': 625, 'cache_read': 50},
-    'claude-haiku-4-5':         {'input': 100,  'output': 500,  'cache_creation': 125, 'cache_read': 10},
+    'claude-opus-4-7':   {'input': 500,  'output': 2500, 'cache_creation': 625, 'cache_read': 50},
+    'claude-opus-4-5':   {'input': 500,  'output': 2500, 'cache_creation': 625, 'cache_read': 50},
+    'claude-sonnet-4-6': {'input': 300,  'output': 1500, 'cache_creation': 375, 'cache_read': 30},
+    'claude-sonnet-4-5': {'input': 300,  'output': 1500, 'cache_creation': 375, 'cache_read': 30},
+    'claude-haiku-4-5':  {'input': 100,  'output': 500,  'cache_creation': 125, 'cache_read': 10},
 }
 DEFAULT_RATES = MODEL_RATES['claude-sonnet-4-6']
+
+# Elimina sufijos de fecha tipo "-20251015" para normalizar IDs de modelo.
+_DATE_SUFFIX = re.compile(r'-\d{8}$')
+
+def normalize_model(model_id: str) -> str:
+    return _DATE_SUFFIX.sub('', model_id or '')
+
+def get_rates(model_id: str) -> dict:
+    return MODEL_RATES.get(normalize_model(model_id), DEFAULT_RATES)
 
 
 def send_message(msg):
@@ -36,8 +47,7 @@ def read_message():
     return json.loads(sys.stdin.buffer.read(size).decode('utf-8'))
 
 
-def estimate_cost_cents(tokens, model):
-    rates = MODEL_RATES.get(model, DEFAULT_RATES)
+def estimate_cost_cents(tokens: dict, rates: dict) -> float:
     return (
         tokens['input'] * rates['input'] +
         tokens['output'] * rates['output'] +
@@ -51,6 +61,7 @@ def empty_day():
         'tokens': {'input': 0, 'output': 0, 'cache_creation': 0, 'cache_read': 0, 'total': 0},
         'sessions': set(),
         'cost_cents': 0.0,
+        'earliest_ts': None,   # timestamp ISO del primer mensaje del día
     }
 
 
@@ -82,7 +93,6 @@ def scan_usage():
                     ts_str = entry.get('timestamp')
                     if not ts_str:
                         continue
-
                     try:
                         ts = datetime.fromisoformat(ts_str.replace('Z', '+00:00'))
                     except ValueError:
@@ -100,7 +110,7 @@ def scan_usage():
                     if not usage:
                         continue
 
-                    model = msg.get('model', '')
+                    rates = get_rates(msg.get('model', ''))
                     day = days[date_key]
                     t = day['tokens']
                     inp = usage.get('input_tokens', 0)
@@ -115,8 +125,11 @@ def scan_usage():
                     day['sessions'].add(session_id)
                     day['cost_cents']   += estimate_cost_cents(
                         {'input': inp, 'output': out, 'cache_creation': cc, 'cache_read': cr},
-                        model
+                        rates
                     )
+                    if day['earliest_ts'] is None or ts_str < day['earliest_ts']:
+                        day['earliest_ts'] = ts_str
+
         except OSError:
             continue
 
@@ -128,6 +141,7 @@ def scan_usage():
             'tokens': t,
             'sessions': len(day['sessions']),
             'cost_cents': round(day['cost_cents'], 4),
+            'earliest_ts': day['earliest_ts'],
         }
 
     return result

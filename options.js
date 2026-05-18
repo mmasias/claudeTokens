@@ -43,13 +43,22 @@ async function loadCacheInfo() {
 }
 
 async function init() {
-  const { weeklyLimit } = await chrome.storage.local.get('weeklyLimit');
+  const { weeklyLimit, fetchIntervalMinutes } = await chrome.storage.local.get(['weeklyLimit', 'fetchIntervalMinutes']);
   if (weeklyLimit) {
     document.getElementById('weekly-limit').value = weeklyLimit;
     document.getElementById('limit-display').textContent = formatTokens(weeklyLimit) + ' tokens/semana';
   }
+  if (fetchIntervalMinutes) {
+    document.getElementById('fetch-interval').value = String(fetchIntervalMinutes);
+  }
   loadCacheInfo();
 }
+
+document.getElementById('btn-save-interval').addEventListener('click', () => {
+  const minutes = parseInt(document.getElementById('fetch-interval').value, 10);
+  chrome.runtime.sendMessage({ type: 'SET_INTERVAL', minutes });
+  showToast();
+});
 
 document.getElementById('btn-test-host').addEventListener('click', () => {
   const btn = document.getElementById('btn-test-host');

@@ -50,6 +50,20 @@
     </section>
 
     <section class="card">
+      <h2>Frecuencia de actualización</h2>
+      <p class="help">Con qué frecuencia se leen los archivos de sesión en segundo plano.</p>
+      <div class="field">
+        <label for="fetch-interval">Intervalo</label>
+        <select id="fetch-interval">
+          <option value="15">Cada 15 minutos</option>
+          <option value="30">Cada 30 minutos</option>
+          <option value="60" selected>Cada hora (por defecto)</option>
+        </select>
+      </div>
+      <button id="btn-save-interval" class="btn-primary" type="button">Guardar intervalo</button>
+    </section>
+
+    <section class="card">
       <h2>Caché</h2>
       <div id="cache-info" class="cache-info">Cargando...</div>
       <button id="btn-clear-cache" class="btn-danger" type="button">Borrar caché</button>
