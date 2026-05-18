@@ -67,7 +67,7 @@ def make_day():
 
 
 def get_window(days=7):
-    today = datetime.now(timezone.utc).date()
+    today = datetime.now().date()
     return (
         {str(today - timedelta(days=i)): make_day() for i in range(days)},
         datetime.now(timezone.utc) - timedelta(days=days),
@@ -111,7 +111,7 @@ def scan_claude(days, cutoff):
                     if ts < cutoff:
                         continue
 
-                    date_key = str(ts.date())
+                    date_key = str(ts.astimezone().date())
                     if date_key not in days:
                         continue
 
@@ -175,7 +175,7 @@ def scan_gemini(days, cutoff):
                     if ts < cutoff:
                         continue
 
-                    date_key = str(ts.date())
+                    date_key = str(ts.astimezone().date())
                     if date_key not in days:
                         continue
 
@@ -238,7 +238,7 @@ def scan_opencode(days, cutoff):
         if ts < cutoff:
             continue
 
-        date_key = str(ts.date())
+        date_key = str(ts.astimezone().date())
         if date_key not in days:
             continue
 
