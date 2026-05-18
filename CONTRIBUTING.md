@@ -48,6 +48,24 @@ EOF
 
 O más simple, edita temporalmente la línea `projects_dir` en `claude_token_bridge.py` para apuntar a `/tmp/claude-test/projects`.
 
+## Fuentes de datos
+
+### Claude Code
+- Ruta: `~/.claude/projects/**/*.jsonl`
+- Formato JSONL, líneas con `"type":"assistant"` y campo `message.usage`
+- Tokens: `input_tokens`, `output_tokens`, `cache_creation_input_tokens`, `cache_read_input_tokens`
+
+### Gemini CLI
+- Ruta: `~/.gemini/tmp/**/chats/*.jsonl`
+- Formato JSONL, líneas con `"type":"gemini"` y campo `tokens`
+- Tokens: `input`, `output`, `cached`, `thoughts`, `total`
+
+### OpenCode / z.ai
+- Ruta: `~/.local/share/opencode/opencode.db` (SQLite)
+- Tabla `message`, campo `data` (JSON), `role:"assistant"` con campo `tokens`
+- Tokens: `total`, `input`, `output`, `cache.read`, `cache.write`
+- Timestamp: `time.created` (Unix ms)
+
 ## Formato de los archivos JSONL
 
 Cada línea es un objeto JSON. El host solo procesa líneas con `"type":"assistant"` que tengan el campo `usage`:

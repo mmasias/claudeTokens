@@ -57,6 +57,19 @@ function renderData(weeklyData, weeklyLimit) {
   document.getElementById('total-cost').textContent = formatCost(totalCost);
   document.getElementById('total-sessions').textContent = totalSessions;
 
+  // Desglose por herramienta
+  const byTool = { claude: 0, gemini: 0, opencode: 0 };
+  for (const d of dates) {
+    const day = weeklyData[d];
+    if (!day?.by_tool) continue;
+    byTool.claude   += day.by_tool.claude?.tokens?.total   ?? 0;
+    byTool.gemini   += day.by_tool.gemini?.tokens?.total   ?? 0;
+    byTool.opencode += day.by_tool.opencode?.tokens?.total ?? 0;
+  }
+  document.getElementById('tool-claude').textContent   = formatTokens(byTool.claude);
+  document.getElementById('tool-gemini').textContent   = formatTokens(byTool.gemini);
+  document.getElementById('tool-opencode').textContent = formatTokens(byTool.opencode);
+
   // Progress bar
   if (weeklyLimit && weeklyLimit > 0) {
     show('limit-block');
