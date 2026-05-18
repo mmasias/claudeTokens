@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Tokens</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <span class="title">Claude Tokens</span>
+    <div class="header-actions">
+      <button id="btn-refresh" title="Actualizar datos" class="icon-btn">↻</button>
+      <a href="options.html" target="_blank" title="Configuración" class="icon-btn">⚙</a>
+    </div>
+  </div>
+
+  <div id="state-no-key" class="state-panel hidden">
+    <p class="state-msg">Configura tu Admin API key para comenzar.</p>
+    <a href="options.html" target="_blank" class="btn-primary">Abrir configuración</a>
+  </div>
+
+  <div id="state-error" class="state-panel hidden">
+    <p class="state-msg error" id="error-msg"></p>
+    <a href="options.html" target="_blank" class="btn-primary">Revisar configuración</a>
+  </div>
+
+  <div id="state-loading" class="state-panel hidden">
+    <p class="state-msg">Cargando datos...</p>
+  </div>
+
+  <div id="state-data" class="hidden">
+    <!-- Uso semanal -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-title">Semana actual</span>
+        <span class="section-subtitle" id="week-range"></span>
+      </div>
+
+      <div class="stat-row">
+        <span class="stat-big" id="total-tokens"></span>
+        <span class="stat-label">tokens totales</span>
+      </div>
+
+      <div id="limit-block" class="hidden">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+          </div>
+          <span class="progress-pct" id="progress-pct"></span>
+        </div>
+        <div class="limit-info">
+          <span id="tokens-used-display"></span>
+          <span id="tokens-limit-display"></span>
+        </div>
+      </div>
+
+      <div class="stat-secondary">
+        <span class="label">Costo estimado</span>
+        <span class="value" id="total-cost"></span>
+      </div>
+      <div class="stat-secondary">
+        <span class="label">Sesiones</span>
+        <span class="value" id="total-sessions"></span>
+      </div>
+    </section>
+
+    <!-- Gráfico de barras -->
+    <section class="section">
+      <div class="section-title">Últimos 7 días</div>
+      <div class="bar-chart" id="bar-chart"></div>
+      <div class="bar-labels" id="bar-labels"></div>
+    </section>
+
+    <!-- Reset -->
+    <section class="section reset-section">
+      <div class="reset-row">
+        <span class="reset-label">Tokens más antiguos liberan en</span>
+        <span class="reset-countdown" id="reset-countdown"></span>
+      </div>
+      <div class="reset-detail" id="reset-detail"></div>
+    </section>
+
+    <div class="footer">
+      <span id="last-fetch-label"></span>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
