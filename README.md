@@ -11,63 +11,82 @@ Muestra cuántos tokens has consumido en los últimos 7 días, el desglose diari
 - **Tokens totales** de la semana actual (ventana rodante de 7 días)
 - **Barra de progreso** contra el límite que configures
 - **Gráfico de barras** con el consumo de cada uno de los últimos 7 días
-- **Costo estimado** en USD
+- **Costo estimado** en USD (calculado con las tarifas de cada modelo)
 - **Contador regresivo** hasta que los tokens del día más antiguo se liberen
 - **Badge** en el icono con el porcentaje actual (si tienes límite configurado)
 
+## Cómo funciona
+
+Lee directamente los archivos de sesión de Claude Code en `~/.claude/projects/`. Cada sesión guarda los conteos de tokens (input, output, cache) por mensaje. La extensión agrega esos datos por día para los últimos 7 días.
+
+No necesita API key ni cuenta de Anthropic. Los datos son locales y no salen de tu máquina.
+
+```
+Extension Chrome  <-- Native Messaging -->  Python script  -->  ~/.claude/projects/
+```
+
 ## Requisitos
 
-- Chrome (u otro navegador basado en Chromium)
-- Cuenta de Anthropic con una **organización** creada en el Console
-- **Admin API key** (`sk-ant-admin...`), generada en [console.anthropic.com/settings/admin-keys](https://console.anthropic.com/settings/admin-keys)
-
-> Las cuentas personales sin organización no tienen acceso al Admin API. Puedes crear una organización en Console → Settings → Organization y agregarte como admin.
+- Chrome u otro navegador basado en Chromium
+- Python 3 (ya viene en macOS y Linux)
+- Claude Code instalado y con al menos una sesión registrada
 
 ## Instalación
 
-1. Clona o descarga este repositorio:
-   ```bash
-   git clone https://github.com/mmasias/claudeTokens.git
-   ```
+### 1. Cargar la extensión en Chrome
 
-2. Abre Chrome y ve a `chrome://extensions`
+```bash
+git clone https://github.com/mmasias/claudeTokens.git
+```
 
-3. Activa **Modo desarrollador** (toggle en la esquina superior derecha)
+1. Abre `chrome://extensions`
+2. Activa **Modo desarrollador** (toggle en la esquina superior derecha)
+3. Haz clic en **Cargar extensión descomprimida** y selecciona la carpeta del repositorio
+4. Copia el **ID de la extensión** (cadena de ~32 caracteres visible bajo el nombre)
 
-4. Haz clic en **Cargar extensión descomprimida** y selecciona la carpeta del repositorio
+### 2. Instalar el host nativo
 
-5. Haz clic en el icono de la extensión → **⚙** → ingresa tu Admin API key → **Verificar y guardar**
+El host nativo es un script Python que actúa de puente entre Chrome y los archivos locales de Claude Code. Se instala una vez por máquina.
 
-La extensión verifica la key contra la API y, si es válida, inicia el primer fetch automáticamente.
+```bash
+cd claudeTokens/native_host
+chmod +x install.sh
+./install.sh TU_EXTENSION_ID
+```
+
+El script copia `claude_token_bridge.py` a `~/.local/share/claude-tokens/` y registra el manifiesto de native messaging en Chrome y Chromium.
+
+### 3. Verificar la conexión
+
+Recarga la extensión en `chrome://extensions`, abre la configuración (⚙) y pulsa **Verificar conexión**. Debería indicar cuántos tokens tiene en los últimos 7 días.
 
 ## Configuración
 
 | Parámetro | Descripción |
 |-----------|-------------|
-| Admin API key | Obligatorio. Debe empezar con `sk-ant-admin...` |
-| Límite semanal | Opcional. Número de tokens que usas como techo de referencia. Si no lo configuras, se muestran valores absolutos sin porcentaje. |
+| Límite semanal | Opcional. Número de tokens como techo de referencia. Sin él se muestran valores absolutos sin porcentaje. |
 
-El límite no lo expone el API de Anthropic — cada usuario lo calibra según su plan y sus patrones de uso.
+El límite no lo expone ningún API de Anthropic — cada usuario lo calibra según su plan y sus patrones de uso.
 
 ## Uso en otros equipos
 
-La extensión no sincroniza entre dispositivos (no está en el Web Store). Para usarla en otro equipo:
+```bash
+git clone https://github.com/mmasias/claudeTokens.git
+cd claudeTokens/native_host
+./install.sh TU_EXTENSION_ID_EN_ESTE_EQUIPO
+```
 
-1. Clona el repo
-2. Carga la extensión en modo desarrollador (mismo proceso de instalación)
-3. Configura la Admin API key en ese equipo
+Cada máquina tiene su propio ID de extensión y sus propios datos locales en `~/.claude/`. Los datos no se sincronizan entre equipos — cada instalación mide el uso de esa máquina.
 
-## Cómo funciona
+## Lógica del reset
 
-Usa el [Claude Code Analytics Admin API](https://docs.anthropic.com/en/api/admin-api/claude-code/get-claude-code-usage-report) de Anthropic para obtener el uso diario agregado. Hace una llamada por cada uno de los últimos 7 días, agrega los tokens por modelo y los almacena localmente con `chrome.storage.local`. Los datos se actualizan automáticamente cada hora.
-
-La "ventana de reset" no es un día fijo — es una ventana rodante. El contador muestra cuánto tiempo falta para que el día más antiguo con consumo salga de la ventana de 7 días.
+La ventana de uso no tiene un reset fijo. Es siempre los últimos 7 días. El contador muestra cuánto tiempo falta para que el día más antiguo con consumo salga de esa ventana — ese es el momento en que se liberan esos tokens del cómputo.
 
 ## Privacidad
 
-- La Admin API key se almacena únicamente en `chrome.storage.local` (local, no sincronizado con la nube de Chrome)
-- La extensión solo hace peticiones a `api.anthropic.com`
-- No hay telemetría ni datos enviados a terceros
+- No hay API keys ni credenciales de ningún tipo
+- La extensión no hace peticiones a internet
+- Los datos de sesión de Claude Code nunca salen de tu máquina
 
 ## Licencia
 
