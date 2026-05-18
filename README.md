@@ -2,9 +2,11 @@
 
 Extensión de Chrome para monitorear el uso semanal de tokens en tus herramientas de IA: **Claude Code**, **Gemini CLI** y **OpenCode / z.ai**.
 
-## Qué muestra
+<div align=center>
+<img src="https://github.com/user-attachments/assets/3cfd57b9-d1e2-4337-a407-7b466975e19e" width="35%" />  
+</div>
 
-<img width="25%" alt="image" src="https://github.com/user-attachments/assets/3cfd57b9-d1e2-4337-a407-7b466975e19e" align=right />
+## Qué muestra
 
 - **Tokens totales** de la semana actual (ventana rodante de 7 días)
 - **Desglose por herramienta**: Claude Code / Gemini / z.ai por separado
