@@ -19,6 +19,9 @@ MANIFEST_NAME="${HOST_NAME}.json"
 NM_DIRS=(
   "$HOME/.config/google-chrome/NativeMessagingHosts"
   "$HOME/.config/chromium/NativeMessagingHosts"
+  "$HOME/Library/Application Support/Google/Chrome/NativeMessagingHosts"
+  "$HOME/Library/Application Support/Chromium/NativeMessagingHosts"
+  "$HOME/Library/Application Support/Microsoft Edge/NativeMessagingHosts"
 )
 
 echo "Instalando Claude Token Bridge..."
@@ -30,18 +33,16 @@ chmod +x "$INSTALL_DIR/claude_token_bridge.py"
 echo "  Script instalado en: $INSTALL_DIR/claude_token_bridge.py"
 
 # Crear manifiesto
-MANIFEST=$(cat <<EOF
-{
-  "name": "${HOST_NAME}",
-  "description": "Claude Tokens native bridge - lee uso de tokens desde ~/.claude/",
-  "path": "${INSTALL_DIR}/claude_token_bridge.py",
-  "type": "stdio",
-  "allowed_origins": [
-    "chrome-extension://${EXTENSION_ID}/"
-  ]
-}
-EOF
-)
+MANIFEST=$(python3 -c "
+import json, sys
+print(json.dumps({
+    'name': sys.argv[1],
+    'description': 'Claude Tokens native bridge - lee uso de tokens desde ~/.claude/',
+    'path': sys.argv[2],
+    'type': 'stdio',
+    'allowed_origins': ['chrome-extension://' + sys.argv[3] + '/']
+}, indent=2))
+" "$HOST_NAME" "$INSTALL_DIR/claude_token_bridge.py" "$EXTENSION_ID")
 
 # Instalar manifiesto en cada directorio aplicable
 INSTALLED=0

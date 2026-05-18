@@ -1,4 +1,5 @@
-const HOST_NAME = 'com.claudetokens.bridge';
+importScripts('shared.js');
+
 const DEFAULT_INTERVAL_MINUTES = 60;
 
 function fetchFromNativeHost() {

@@ -1,11 +1,5 @@
 const DAY_NAMES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
-function formatTokens(n) {
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(2) + 'M';
-  if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
-  return String(n);
-}
-
 function formatCost(cents) {
   if (cents === 0) return '$0.00';
   const usd = cents / 100;

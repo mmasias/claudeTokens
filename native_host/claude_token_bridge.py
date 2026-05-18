@@ -56,7 +56,6 @@ def read_message():
 def make_day():
     return {
         'tokens': {'input': 0, 'output': 0, 'cache_creation': 0, 'cache_read': 0, 'total': 0},
-        'sessions': set(),
         'cost_cents': 0.0,
         'earliest_ts': None,
         'by_tool': {
@@ -90,7 +89,7 @@ def scan_claude(days, cutoff):
     for jsonl_path in glob.glob(os.path.join(projects_dir, '**', '*.jsonl'), recursive=True):
         session_id = os.path.splitext(os.path.basename(jsonl_path))[0]
         try:
-            with open(jsonl_path, 'r', encoding='utf-8', errors='ignore') as f:
+            with open(jsonl_path, 'r', encoding='utf-8', errors='replace') as f:
                 for line in f:
                     line = line.strip()
                     if not line or '"usage"' not in line:
@@ -132,7 +131,6 @@ def scan_claude(days, cutoff):
                     t['output']         += out
                     t['cache_creation'] += cc
                     t['cache_read']     += cr
-                    day['sessions'].add(session_id)
                     day['cost_cents'] += claude_cost_cents(
                         {'input': inp, 'output': out, 'cache_creation': cc, 'cache_read': cr},
                         msg.get('model', ''),
@@ -151,7 +149,7 @@ def scan_gemini(days, cutoff):
     for jsonl_path in glob.glob(chats_glob, recursive=True):
         session_id = os.path.splitext(os.path.basename(jsonl_path))[0]
         try:
-            with open(jsonl_path, 'r', encoding='utf-8', errors='ignore') as f:
+            with open(jsonl_path, 'r', encoding='utf-8', errors='replace') as f:
                 for line in f:
                     line = line.strip()
                     if not line or '"tokens"' not in line:
@@ -279,9 +277,11 @@ def scan_all():
         t['total'] = t['input'] + t['output'] + t['cache_creation'] + t['cache_read']
         result[date] = {
             'tokens': t,
-            'sessions': len(day['sessions'] | day['by_tool']['claude']['sessions']
-                            | day['by_tool']['gemini']['sessions']
-                            | day['by_tool']['opencode']['sessions']),
+            'sessions': len(
+                day['by_tool']['claude']['sessions']
+                | day['by_tool']['gemini']['sessions']
+                | day['by_tool']['opencode']['sessions']
+            ),
             'cost_cents': round(day['cost_cents'], 4),
             'earliest_ts': day['earliest_ts'],
             'by_tool': {
