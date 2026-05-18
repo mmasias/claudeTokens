@@ -117,17 +117,17 @@ function renderData(weeklyData, weeklyLimit) {
 }
 
 async function init() {
-  const { adminApiKey, weeklyData, weeklyLimit, lastFetch, lastError } =
-    await chrome.storage.local.get(['adminApiKey', 'weeklyData', 'weeklyLimit', 'lastFetch', 'lastError']);
-
-  if (!adminApiKey) {
-    showState('state-no-key');
-    return;
-  }
+  const { weeklyData, weeklyLimit, lastFetch, lastError } =
+    await chrome.storage.local.get(['weeklyData', 'weeklyLimit', 'lastFetch', 'lastError']);
 
   if (lastError && !weeklyData) {
     document.getElementById('error-msg').textContent = lastError;
     showState('state-error');
+    return;
+  }
+
+  if (!weeklyData && !lastError) {
+    showState('state-no-key');
     return;
   }
 

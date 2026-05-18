@@ -1,10 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Claude Tokens",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Monitor de uso semanal de tokens en Claude Code",
-  "permissions": ["storage", "alarms"],
-  "host_permissions": ["https://api.anthropic.com/*"],
+  "permissions": ["storage", "alarms", "nativeMessaging"],
   "background": {
     "service_worker": "background.js"
   },

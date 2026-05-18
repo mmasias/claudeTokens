@@ -11,37 +11,28 @@
     <p class="subtitle">Configuración de la extensión</p>
 
     <section class="card">
-      <h2>Admin API Key</h2>
+      <h2>Native Messaging Host</h2>
       <p class="help">
-        Necesitas una <strong>Admin API key</strong> (empieza con <code>sk-ant-admin...</code>).
-        Se genera en
-        <a href="https://console.anthropic.com/settings/api-keys" target="_blank">
-          console.anthropic.com/settings/api-keys
-        </a>
-        bajo la sección "Admin API keys".
+        La extensión lee los archivos de sesión de <code>~/.claude/projects/</code> mediante un
+        script Python local. Instálalo una vez por máquina ejecutando:
       </p>
-      <div class="field">
-        <label for="api-key">Admin API Key</label>
-        <div class="input-row">
-          <input
-            type="password"
-            id="api-key"
-            placeholder="sk-ant-admin..."
-            autocomplete="off"
-            spellcheck="false"
-          />
-          <button id="toggle-visibility" class="btn-secondary" type="button">Mostrar</button>
-        </div>
+      <div class="code-block">
+        cd native_host<br>
+        chmod +x install.sh<br>
+        ./install.sh <span class="placeholder">TU_EXTENSION_ID</span>
       </div>
-      <div id="key-status" class="status-msg hidden"></div>
-      <button id="btn-verify" class="btn-primary" type="button">Verificar y guardar</button>
+      <p class="help">
+        El ID de la extensión está en <code>chrome://extensions</code> (modo desarrollador activado).
+      </p>
+      <div id="host-status" class="status-msg hidden"></div>
+      <button id="btn-test-host" class="btn-primary" type="button">Verificar conexión</button>
     </section>
 
     <section class="card">
       <h2>Límite semanal (opcional)</h2>
       <p class="help">
-        Configura el techo de tokens que quieres monitorear. Si no lo configuras,
-        se mostrarán solo valores absolutos sin porcentaje.
+        Configura un techo de referencia en tokens. Sin él se muestran solo valores absolutos.
+        Calibra según tu plan y tus patrones de uso habituales.
       </p>
       <div class="field">
         <label for="weekly-limit">Tokens por semana</label>
@@ -59,9 +50,9 @@
     </section>
 
     <section class="card">
-      <h2>Datos en caché</h2>
+      <h2>Caché</h2>
       <div id="cache-info" class="cache-info">Cargando...</div>
-      <button id="btn-clear-cache" class="btn-danger" type="button">Borrar caché y resetear</button>
+      <button id="btn-clear-cache" class="btn-danger" type="button">Borrar caché</button>
     </section>
 
     <div id="save-toast" class="toast hidden">Guardado</div>
