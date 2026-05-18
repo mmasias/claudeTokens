@@ -4,6 +4,13 @@ Extensión de Chrome para monitorear el uso semanal de tokens en **Claude Code**
 
 Muestra cuántos tokens has consumido en los últimos 7 días, el desglose diario y cuánto tiempo falta para que los tokens más antiguos salgan de la ventana de conteo.
 
+<div align=center>
+
+<img width="508" height="548" alt="image" src="https://github.com/user-attachments/assets/d163b10d-5b5f-4237-8a42-a420881631f6" />
+
+</div>
+
+
 ---
 
 ## Qué muestra
