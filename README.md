@@ -6,10 +6,9 @@ Muestra cuántos tokens has consumido en los últimos 7 días, el desglose diari
 
 <div align=center>
 
-<img width="508" height="548" alt="image" src="https://github.com/user-attachments/assets/d163b10d-5b5f-4237-8a42-a420881631f6" />
+<img width="514" height="665" alt="image" src="https://github.com/user-attachments/assets/5e889949-a7c6-41b4-b458-06d4ee016afc" />
 
 </div>
-
 
 ---
 
