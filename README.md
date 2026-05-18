@@ -1,12 +1,8 @@
 # Claude Tokens
 
+<img width="30%" alt="image" src="https://github.com/user-attachments/assets/5e889949-a7c6-41b4-b458-06d4ee016afc" align=right />
+
 Extensión de Chrome para monitorear el uso semanal de tokens en tus herramientas de IA: **Claude Code**, **Gemini CLI** y **OpenCode / z.ai**.
-
-<div align=center>
-
-<img width="514" height="665" alt="image" src="https://github.com/user-attachments/assets/5e889949-a7c6-41b4-b458-06d4ee016afc" />
-
-</div>
 
 ---
 
