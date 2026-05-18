@@ -117,7 +117,7 @@ function renderData(weeklyData, weeklyLimit) {
     if (total === 0) {
       stack.classList.add('zero');
     } else {
-      for (const [tool, color] of Object.entries(TOOL_COLORS)) {
+      for (const [tool, color] of Object.entries(TOOL_COLORS).reverse()) {
         const toolTotal = day.by_tool?.[tool]?.tokens?.total ?? 0;
         if (toolTotal === 0) continue;
         const seg = document.createElement('div');
