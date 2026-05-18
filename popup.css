@@ -231,18 +231,25 @@ body {
   margin-bottom: 4px;
 }
 
-.bar {
+.bar-stack {
   flex: 1;
-  background: #CC785C;
+  display: flex;
+  flex-direction: column;
   border-radius: 2px 2px 0 0;
+  overflow: hidden;
   min-height: 2px;
-  opacity: 0.75;
+  opacity: 0.8;
   transition: height 0.3s ease;
   cursor: default;
 }
 
-.bar.today { opacity: 1; }
-.bar.zero { background: #e5e7eb; }
+.bar-stack.today { opacity: 1; }
+.bar-stack.zero { background: #e5e7eb; min-height: 2px; }
+
+.bar-segment {
+  flex: 1;
+  min-height: 1px;
+}
 
 .bar-labels {
   display: flex;

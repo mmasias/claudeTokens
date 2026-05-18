@@ -86,7 +86,8 @@ function renderData(weeklyData, weeklyLimit) {
     hide('limit-block');
   }
 
-  // Bar chart
+  // Bar chart apilado por herramienta
+  const TOOL_COLORS = { claude: '#CC785C', gemini: '#4285f4', opencode: '#34a853' };
   const dailyTokens = dates.map((d) => weeklyData[d]?.tokens?.total ?? 0);
   const maxDay = Math.max(...dailyTokens, 1);
 
@@ -95,17 +96,39 @@ function renderData(weeklyData, weeklyLimit) {
   chart.innerHTML = '';
   labels.innerHTML = '';
 
-  dates.forEach((date, i) => {
-    const val = dailyTokens[i];
-    const pctH = Math.max(2, (val / maxDay) * 100);
+  dates.forEach((date) => {
+    const day = weeklyData[date] ?? {};
+    const total = day.tokens?.total ?? 0;
+    const totalH = Math.max(total > 0 ? 4 : 2, (total / maxDay) * 100);
     const isToday = date === today;
     const dow = DAY_NAMES[new Date(date + 'T12:00:00').getDay()];
 
-    const bar = document.createElement('div');
-    bar.className = 'bar' + (isToday ? ' today' : '') + (val === 0 ? ' zero' : '');
-    bar.style.height = pctH + '%';
-    bar.title = `${date}\n${formatTokens(val)} tokens`;
-    chart.appendChild(bar);
+    const stack = document.createElement('div');
+    stack.className = 'bar-stack' + (isToday ? ' today' : '');
+    stack.style.height = totalH + '%';
+    stack.title = [
+      date,
+      `Total: ${formatTokens(total)}`,
+      `Claude: ${formatTokens(day.by_tool?.claude?.tokens?.total ?? 0)}`,
+      `Gemini: ${formatTokens(day.by_tool?.gemini?.tokens?.total ?? 0)}`,
+      `z.ai: ${formatTokens(day.by_tool?.opencode?.tokens?.total ?? 0)}`,
+    ].join('\n');
+
+    if (total === 0) {
+      stack.classList.add('zero');
+    } else {
+      for (const [tool, color] of Object.entries(TOOL_COLORS)) {
+        const toolTotal = day.by_tool?.[tool]?.tokens?.total ?? 0;
+        if (toolTotal === 0) continue;
+        const seg = document.createElement('div');
+        seg.className = 'bar-segment';
+        seg.style.background = color;
+        seg.style.flex = String(toolTotal);
+        stack.appendChild(seg);
+      }
+    }
+
+    chart.appendChild(stack);
 
     const lbl = document.createElement('div');
     lbl.className = 'bar-label' + (isToday ? ' today' : '');
